@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import java.util.ArrayList;
+
 public class Manu01 extends AppCompatActivity {
 
     //Explicit
@@ -24,12 +26,15 @@ public class Manu01 extends AppCompatActivity {
     private Criteria criteria;
     private double latADouble, lngADouble;
     private double[] lengthDoubles;
+    private MyManage myManage;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manu01);
+
+        myManage = new MyManage(Manu01.this);
 
         img01 = (ImageButton) findViewById(R.id.manu001);
 
@@ -45,6 +50,7 @@ public class Manu01 extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent i = new Intent(Manu01.this, Manu0011.class);
+                i.putExtra("Length", lengthDoubles);
                 startActivity(i);
             }
 
@@ -67,7 +73,11 @@ public class Manu01 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //update eveTABLE
+                updateEVEtable(lengthDoubles);
+
                 Intent i = new Intent(Manu01.this, Manu0012.class);
+                i.putExtra("Length", lengthDoubles);
                 startActivity(i);
             }
 
@@ -79,6 +89,30 @@ public class Manu01 extends AppCompatActivity {
 
 
     }   // Main Method
+
+    private void updateEVEtable(double[] lengthDoubles) {
+
+        SQLiteDatabase sqLiteDatabase = openOrCreateDatabase(MyOpenHelper.database_name,
+                MODE_PRIVATE, null);
+        sqLiteDatabase.delete(MyManage.table_eve, null, null);
+
+        for (int i = 0; i< this.lengthDoubles.length; i++) {
+            myManage.addLength(lengthDoubles[i]);
+        }   // for
+
+        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM eveTABLE ORDER BY Length ASC", null);
+        cursor.moveToFirst();
+        ArrayList<String> stringArrayList = new ArrayList<String>();
+
+        for (int i=0;i<cursor.getCount();i++) {
+            stringArrayList.add(cursor.getString(0));
+            cursor.moveToNext();
+        } // for
+
+        Log.d("10decV2", "array ==> " + stringArrayList);
+
+
+    }   // updateEVE
 
     private void calculateLengthAll() {
 
